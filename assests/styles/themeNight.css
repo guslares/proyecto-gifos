@@ -494,6 +494,8 @@ margin: 3px 6px;
 .button-cancel{
     background: #110038;
     color: #FFFFFF;
+    text-align: center;
+    padding-top: 6px;
 }
 
 .button-start{
