@@ -1,7 +1,7 @@
 class Gif {
 	constructor() {
 		this.APIKEY = "gQI6Rlg7k278ElyIYGIW7pRogbFniBkT"
-		this.URLBASE = 'http://api.giphy.com/v1/gifs'
+		this.URLBASE = 'https://api.giphy.com/v1/gifs'
 	}
 	async autocompleteSearch(search) {
 		const data = await fetch(`${this.URLBASE}/search/tags?api_key=${this.APIKEY}&q=${search}`);
@@ -41,10 +41,10 @@ const nightThemeButton = document.getElementById('night-theme')
 const dayThemeButton = document.getElementById('day-theme')
 
 function changeThemeNight() {
-	document.getElementById('logoGifo').src ='./assests/img/gifOF_logo_dark.png'
-	document.getElementById('fotoLupa').src ='./assests/img/lupa_inactive_dark.svg'
+	document.getElementById('logoGifo').src ='assests/img/gifOF_logo_dark.png'
+	document.getElementById('fotoLupa').src ='assests/img/lupa_inactive_dark.svg'
 
-	document.getElementById('sheetStyle').href = "./assests/styles/themeNight.css"
+	document.getElementById('sheetStyle').href = "assests/styles/themeNight.css"
 	nightThemeButton.classList = 'theme-active'
 	dayThemeButton.classList = ''
 	localStorage.setItem('themeActive','night-theme')
@@ -57,11 +57,11 @@ function changeThemeNight() {
 
 function changeThemeDay() {
 
-	document.getElementById('sheetStyle').href = "./assests/styles/themeDay.css"
+	document.getElementById('sheetStyle').href = "assests/styles/themeDay.css"
 	localStorage.setItem('themeActive', 'day-theme')
 	
-	document.getElementById('logoGifo').src ='./assests/img/gifOF_logo.png'
-	document.getElementById('fotoLupa').src ='./assests/img/lupa_inactive.svg'
+	document.getElementById('logoGifo').src ='assests/img/gifOF_logo.png'
+	document.getElementById('fotoLupa').src ='assests/img/lupa_inactive.svg'
 
 	nightThemeButton.classList = ''
 	dayThemeButton.classList = 'theme-active'
@@ -207,7 +207,7 @@ searchInput.addEventListener('input', async e => {
 		searchButton.classList.add('inactive')
 		searchButton.classList.remove('hover');
 		searchButton.disabled = true;
-		localStorage.getItem('activeTheme') == "day-theme" ? searchButton.firstElementChild.src = './assests/img/lupa_inactive.svg' : searchButton.firstElementChild.src = './assests/img/lupa_inactive_dark.svg'
+		localStorage.getItem('activeTheme') == "day-theme" ? searchButton.firstElementChild.src = 'assests/img/lupa_inactive.svg' : searchButton.firstElementChild.src = './assests/img/lupa_inactive_dark.svg'
 	} else {
 		const gif = new Gif();
 		const data = await gif.autocompleteSearch(e.target.value);
