@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link id="sheetStyle" rel="stylesheet" href="/assests/styles/themeDay.css">
+    <title>GifOS</title>
+</head>
+<body>
+<div class="wellcome-bar fondo-degrade">¡Bienvenidos/as a Guifos.com! ——————Donde los gifs están.////// Número de visitas: 12.765.803</div>    
+<div class="centered-container">
+    <header class="main-header">
+        <a href="./index.html"><img src="./assests/img/gifOF_logo.png" alt="Logo Guifos" id="logoGifo"></a>
+        <nav>
+            <ul>
+                <li class="nav-item">
+                   <a class="primary-button" href="./upload.html">Crear Guifos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="dropdown" href="#">
+                        <span class="primary-button">Elegir Tema</span>
+                        <img class="primary-button" src="./assests/img/dropdown.svg" alt="dropdown icon">
+                    </a>
+                    <div class="dropdown-options hidden"> 
+                        <a href="#" id="day-theme" class="theme-active">Sailor Day</a>
+                        <a href="#" id="night-theme" >Sailor Night</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="link-button" href="#" id="myGifosButton">Mis Guifos</a>
+                </li>
+            </ul>
+         </nav>
+    </header>
+    <main>
+        <div class="search-container">
+            <div class="search-tittle fondo-degrade">Buscar</div>
+            <form class="search-form">
+                <input type="text" class="search-input" placeholder="Busca gifs, hashtags, temas, busca lo que quieras…"> 
+                <button type="submit" class="search-button inactive" disabled><img src="./assests/img/lupa_inactive.svg" alt="icono de lupa" id="fotoLupa">Buscar</button>
+            </form>
+        </div>
+        <div class="search-history hidden" id="search-history"></div>
+        <div class="search-suggestions hidden"></div>
+        <section class="gifs-section hidden">
+            <h3 class="gifs-section-title"></h3>
+            <div id="results-gallery" class="results-gallery"></div>
+        </section>
+        <section class="gifs-section" id="sugestions">
+            <h3 class="gifs-section-title">Hoy te sugerimos:</h3>
+            <div id="suggestions-gallery" class="results-gallery"></div>
+        </section>
+        <section class="gifs-section" id="trending">
+            <h3 class="gifs-section-title">Tendencias</h3>
+            <div id="trending-gallery" class="trending-gallery"></div>
+        </section>
+        <section class="gifs-section hidden" id="myGifs">
+            <h3 class="gifs-section-title">Mis Guigos</h3>
+            <div id="mygifs-gallery" class="trending-gallery"></div>
+        </section>
+    </main>
+</div>
+<script src="busquedas.js"></script>
+</body>
+</html>
