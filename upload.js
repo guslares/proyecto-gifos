@@ -32,20 +32,20 @@ function checkActiveTheme(theme) {
 
 
 function changeThemeNight() {
-  document.getElementById('sheetStyle').href = "./assests/styles/themeNight.css"
-  document.getElementById('arrow').src = "./assests/img/arrow_dark.svg"
+  document.getElementById('sheetStyle').href = "assests/styles/themeNight.css"
+  document.getElementById('arrow').src = "assests/img/arrow_dark.svg"
 
-	document.getElementById('logoGifo').src ='./assests/img/gifOF_logo_dark.png'
-	document.getElementById('capture-icon').src ='./assests/img/camera_light.svg'
+	document.getElementById('logoGifo').src ='assests/img/gifOF_logo_dark.png'
+	document.getElementById('capture-icon').src ='assests/img/camera_light.svg'
 }
 
 function changeThemeDay() {
 
-	document.getElementById('sheetStyle').href = "./assests/styles/themeDay.css"
+	document.getElementById('sheetStyle').href = "assests/styles/themeDay.css"
 	localStorage.setItem('themeActive', 'day-theme')
 	
-	document.getElementById('logoGifo').src ='./assests/img/gifOF_logo.png'
-	document.getElementById('fotoLupa').src ='./assests/img/lupa_inactive.svg'
+	document.getElementById('logoGifo').src ='assests/img/gifOF_logo.png'
+	document.getElementById('fotoLupa').src ='assests/img/lupa_inactive.svg'
 
 	nightThemeButton.classList = ''
 	dayThemeButton.classList = 'theme-active'
@@ -104,7 +104,7 @@ function upLoadingStatus() {
   const div = document.createElement('div')
   div.className = 'upload-view'
   const img = document.createElement('img')
-  img.src = './assests/img/globe_img.png'
+  img.src = 'assests/img/globe_img.png'
   img.alt = 'Imagen globo terraqueo'
   div.appendChild(img)
   const p = document.createElement('p')
@@ -307,7 +307,7 @@ async function startRecord() {
 
 
   document.getElementById('button-capture').removeEventListener('click', startRecord)
-  document.getElementById('capture-icon').src = './assests/img/recording.svg'
+  document.getElementById('capture-icon').src = 'assests/img/recording.svg'
   document.getElementById('capture-text').innerHTML = "Listo"
   document.getElementById('capture-icon').classList.add('recording')
   document.getElementById('capture-text').classList.add('recording')
@@ -391,8 +391,8 @@ function recapturar() {
   document.getElementById('button-capture').removeEventListener('click', upLoadingStatus)
   document.getElementById('button-capture').addEventListener('click', stopRecord)
   document.getElementById('media-container').innerHTML = ' <video class="" src="" id="vista-camara"></video>'
-  let cameraLight ='./assests/img/camera.svg'
-  let cameraDark ='./assests/img/camera_light.svg'
+  let cameraLight ='assests/img/camera.svg'
+  let cameraDark ='assests/img/camera_light.svg'
   
   activeTheme == 'day-theme' ?  document.getElementById('capture-icon').src = cameraLight : document.getElementById('capture-icon').src = cameraDark
   
