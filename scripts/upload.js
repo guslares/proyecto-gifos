@@ -96,6 +96,7 @@ async function getStreamAndRecord() {
 
 }
 
+
 function upLoadingStatus() {
 
   document.getElementById('box-tittle').innerHTML = "Subiendo Guifo"
