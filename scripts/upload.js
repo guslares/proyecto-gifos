@@ -1,9 +1,25 @@
 const APIKEY = 'gQI6Rlg7k278ElyIYGIW7pRogbFniBkT'
-var activeTheme 
+var activeTheme
+let guifo
+let recorder
+let camStream = null;
+let form = new FormData()
+let videoBlob
+let intervalo
+let h = 0;
+let m = 0;
+let s = 0;
+let cs = 0;
 
 
-document.getElementById('start-button').addEventListener('click', showCameraPreview)
 
+const boxTittle = document.getElementById('box-tittle')
+const uploadContaint = document.getElementById('upload-container')
+const buttonCapture = document.getElementById('button-capture')
+
+const buttonCaptureText = document.getElementById('capture-text')
+const buttonCaptureIcon = document.getElementById('capture-icon')
+const mediaContainer = document.getElementById('media-container')
 
 document.addEventListener('DOMContentLoaded', e => {
   renderMyGifsGallery()
@@ -11,97 +27,143 @@ document.addEventListener('DOMContentLoaded', e => {
   document.getElementById('start-button').addEventListener('click', showCameraPreview)
   activeTheme = localStorage.getItem('themeActive')
 
-  // checkActiveTheme(localStorage.getItem('themeActive'))
-    checkActiveTheme(activeTheme)
+  checkActiveTheme(activeTheme)
 
-	console.log(localStorage.getItem('themeActive'))
+  console.log(localStorage.getItem('themeActive'))
 });
 
 function checkActiveTheme(theme) {
 
-	if(theme == null){
-		localStorage.setItem('themeActive', 'day-theme')
-		activeTheme = 'day-theme'
-	}
-	else if(theme == "night-theme")   {
+  if (theme == null) {
+    localStorage.setItem('themeActive', 'day-theme')
+    activeTheme = 'day-theme'
+  }
+  else if (theme == "night-theme") {
 
-		changeThemeNight()
-	}
+    changeThemeNight()
+  }
 
 }
-
 
 function changeThemeNight() {
   document.getElementById('sheetStyle').href = "assests/styles/themeNight.css"
   document.getElementById('arrow').src = "assests/img/arrow_dark.svg"
 
-	document.getElementById('logoGifo').src ='assests/img/gifOF_logo_dark.png'
-	document.getElementById('capture-icon').src ='assests/img/camera_light.svg'
+  document.getElementById('logoGifo').src = 'assests/img/gifOF_logo_dark.png'
+  buttonCaptureIcon.src = 'assests/img/camera_light.svg'
 }
 
 function changeThemeDay() {
 
-	document.getElementById('sheetStyle').href = "assests/styles/themeDay.css"
-	localStorage.setItem('themeActive', 'day-theme')
-	
-	document.getElementById('logoGifo').src ='assests/img/gifOF_logo.png'
-	document.getElementById('fotoLupa').src ='assests/img/lupa_inactive.svg'
+  document.getElementById('sheetStyle').href = "assests/styles/themeDay.css"
+  localStorage.setItem('themeActive', 'day-theme')
 
-	nightThemeButton.classList = ''
-	dayThemeButton.classList = 'theme-active'
+  document.getElementById('logoGifo').src = 'assests/img/gifOF_logo.png'
+  document.getElementById('fotoLupa').src = 'assests/img/lupa_inactive.svg'
 
-	dayThemeButton.removeEventListener('click',changeThemeDay)
+  nightThemeButton.classList = ''
+  dayThemeButton.classList = 'theme-active'
 
-	nightThemeButton.addEventListener('click',changeThemeNight)
-	dropdownOptions.classList.toggle('hidden')
+  dayThemeButton.removeEventListener('click', changeThemeDay)
+
+  nightThemeButton.addEventListener('click', changeThemeNight)
+  dropdownOptions.classList.toggle('hidden')
 }
 
 
 
 function showCameraPreview() {
 
-  document.getElementById('box-tittle').textContent = 'Un Chequeo Antes de Empezar'
-  document.getElementById('upload-container').classList.toggle('hidden')
+  boxTittle.textContent = 'Un Chequeo Antes de Empezar'
+  uploadContaint.classList.toggle('hidden')
   document.getElementById('container-information').classList.toggle('hidden')
   document.getElementById('button-re-capture').addEventListener('click', recapturar)
 
-  getStreamAndRecord()
+  startCamera()
 
 }
 
-const properties = { audio: false, video: { height: { max: 480 } } }
+function startCamera() {
+  let video = document.querySelector('video')
+  navigator.mediaDevices.getUserMedia({
+    audio: false,
+    video: true
+  }).then((stream) => {
+    camStream = stream;
+    video.srcObject = stream;
+    video.play()
+    buttonCapture.addEventListener('click', startRecord)
 
-let recorder
+  }).catch(error => {
+    alert('Necesitamos los permisos para que grabes tu Gif');
+    console.log(error);
+  });
+};
 
-async function getStreamAndRecord() {
-  var video = document.querySelector('video')
-  mediaStream = await navigator.mediaDevices.getUserMedia(properties)
-    .then(async function (mediaStream) {
-      video.srcObject = mediaStream;
-      video.play();
-      recorder = await new RecordRTC(mediaStream, {
-        type: 'gif',
-        frameRate: 1,
-        quality: 10,
-        width: 360,
-        hidden: 240,
-        onGifRecordingStarted: () => {
-          console.log('pasé por aquí')
-        },
-      });
-      recorder.camera = mediaStream
-    })
-
-  document.getElementById('button-capture').addEventListener('click', startRecord)
-
+function recordGif() {
+  recorder = createGifRecorder(camStream);
+  recorder.startRecording();
+  recording = true;
 }
 
+
+function startRecord() {
+
+  buttonCapture.removeEventListener('click', startRecord)
+  buttonCaptureIcon.src = 'assests/img/recording.svg'
+  buttonCaptureText.innerHTML = "Listo"
+  buttonCaptureIcon.classList.add('recording')
+  buttonCaptureText.classList.add('recording')
+  document.getElementById('time-count').classList.replace('visibility-hidden', 'nav-item')
+  boxTittle.textContent = "Capturando Tu Guifo"
+  buttonCapture.addEventListener('click', previewRecord)
+  document.getElementById("timer-clock").innerHTML = "00:00:00:00"
+  recordGif()
+  cronometrar()
+}
+
+
+function createGifRecorder(stream) {
+  return RecordRTC(stream, {
+    type: 'gif',
+    frameRate: 1,
+    quality: 10,
+    width: 360,
+    hidden: 240,
+    onGifRecordingStarted: () => console.log('started')
+  });
+};
+
+async function previewRecord() {
+  await recorder.stopRecording(stopRecord);
+  camStream.getTracks().forEach(track => track.stop());
+  console.log('pasé por parar')
+  boxTittle.textContent = "Vista previa"
+  clearInterval(intervalo)
+  createProgressBar(17)
+  showRecordedButtons()
+}
+
+
+function stopRecord() {
+  parar()
+  videoBlob = recorder.getBlob();
+  console.log(form.get('file'))
+  mediaContainer.innerHTML = '<img class="gif-preview" src="" id="gif-preview"></img>'
+  let gifPreview = document.getElementById('gif-preview')
+  gifPreview.src = URL.createObjectURL(videoBlob);
+  buttonCapture.removeEventListener('click', previewRecord)
+  buttonCapture.addEventListener('click', upLoadingStatus)
+  
+  recorder.destroy();
+  recorder = null;
+}
 
 function upLoadingStatus() {
 
-  document.getElementById('box-tittle').innerHTML = "Subiendo Guifo"
+  boxTittle.innerHTML = "Subiendo Guifo"
 
-  document.getElementById('media-container').innerHTML = ''
+  mediaContainer.innerHTML = ''
   const div = document.createElement('div')
   div.className = 'upload-view'
   const img = document.createElement('img')
@@ -122,22 +184,24 @@ function upLoadingStatus() {
   pieMsg.classList = 'time-remaining'
   div.appendChild(pieMsg)
 
-  document.getElementById('media-container').appendChild(div)
+  mediaContainer.appendChild(div)
 
   document.getElementById('time-count').classList.replace('nav-item', 'visibility-hidden')
   document.getElementById('progressbar-li').classList.add('visibility-hidden')
   document.getElementById('container-time-bar').innerHTML = ''
   document.getElementById('recapture-text').innerHTML = 'Cancelar'
-  document.getElementById('button-capture').classList.replace('upload-item', 'hidden')
+  buttonCapture.classList.replace('upload-item', 'hidden')
 
   upLoadGifo()
 }
 
 function upLoadGifo() {
+  form = new FormData()
+  form.append('file', videoBlob, 'myGif.gif');
 
   let = URLBASE = 'https://upload.giphy.com/v1/gifs'
 
-  document.getElementById('box-tittle').innerHTML = "Subiendo Guifo"
+  boxTittle.innerHTML = "Subiendo Guifo"
 
   fetch('https://upload.giphy.com/v1/gifs?api_key=' + APIKEY,
     {
@@ -161,9 +225,6 @@ function upLoadGifo() {
     })
 }
 
-
-let guifo
-
 async function succesfullUpload(idGuifo) {
 
   guifo = await fetch('https://api.giphy.com/v1/gifs/' + idGuifo + '?api_key=' + APIKEY)
@@ -172,11 +233,11 @@ async function succesfullUpload(idGuifo) {
 
 
 
-  document.getElementById('box-tittle').innerHTML = 'Guifo Subido Con Éxito'
-  document.getElementById('media-container').innerHTML = `<img class="upload-guifo" src="${guifo.data.images.downsized_medium.url}" id="gif-preview"></img>`
+  boxTittle.innerHTML = 'Guifo Subido Con Éxito'
+  mediaContainer.innerHTML = `<img class="upload-guifo" src="${guifo.data.images.downsized_medium.url}" id="gif-preview"></img>`
 
-  document.getElementById('media-container').classList.replace('media-container', 'media-container-small')
-  document.getElementById('upload-container').classList.replace('upload-container', 'upload-container-small')
+  mediaContainer.classList.replace('media-container', 'media-container-small')
+  uploadContaint.classList.replace('upload-container', 'upload-container-small')
 
   document.getElementById('new-guifo-buttons').classList = 'new-guifo-menu d-flex'
 
@@ -202,12 +263,12 @@ async function succesfullUpload(idGuifo) {
   buttonDownload.addEventListener('click', downloadNewGif)
 
   document.getElementById('new-guifo-buttons').appendChild(buttonDownload)
-  document.getElementById('media-container').parentNode.classList.add('success-container')
+  mediaContainer.parentNode.classList.add('success-container')
 
-  document.getElementById('button-capture').classList.remove('hidden')
-  document.getElementById('button-capture').removeEventListener('click', upLoadingStatus)
-  document.getElementById('capture-text').innerHTML = 'Listo'
-  document.getElementById('capture-text').addEventListener('click', reiniciar)
+  buttonCapture.classList.remove('hidden')
+  buttonCapture.removeEventListener('click', upLoadingStatus)
+  buttonCaptureText.innerHTML = 'Listo'
+  buttonCaptureText.addEventListener('click', reiniciar)
   document.getElementById('recapture-li').classList.replace('nav-item', 'hidden')
 
   checkMisGifos()
@@ -233,22 +294,22 @@ async function downloadNewGif() {
 
 function reiniciar() {
 
-  document.getElementById('media-container').classList.replace('media-container-small', 'media-container')
-  document.getElementById('upload-container').classList.replace('upload-container-small', 'upload-container')
-  document.getElementById('media-container').parentNode.classList.remove('success-container')
+  mediaContainer.classList.replace('media-container-small', 'media-container')
+  uploadContaint.classList.replace('upload-container-small', 'upload-container')
+  mediaContainer.parentNode.classList.remove('success-container')
 
   document.getElementById('new-guifo-buttons').innerHTML = ''
   document.getElementById('new-guifo-buttons').classList = 'hidden'
-  document.getElementById('capture-text').innerHTML = 'Capturar'
+  buttonCaptureText.innerHTML = 'Capturar'
 
-  document.getElementById('media-container').innerHTML = ' <video class="" src="" id="vista-camara"></video>'
+  mediaContainer.innerHTML = ' <video class="" src="" id="vista-camara"></video>'
 
-  document.getElementById('upload-container').classList.toggle('hidden')
+  uploadContaint.classList.toggle('hidden')
   document.getElementById('container-information').classList.toggle('hidden')
   document.getElementById('recapture-text').innerHTML = 'Repetir Captura'
   document.getElementById('mygifs-gallery').innerHTML = ''
 
-  document.getElementById('capture-text').removeEventListener('click', reiniciar)
+  buttonCaptureText.removeEventListener('click', reiniciar)
 
 }
 
@@ -270,11 +331,10 @@ function checkMisGifos() {
 
   console.log(misGifosSubidos)
   localStorage.setItem('misGifos', misGifosSubidos)
-  
+
   renderMyGifsGallery()
 
 }
-
 
 async function renderMyGifsGallery() {
 
@@ -286,7 +346,7 @@ async function renderMyGifsGallery() {
 
   const myGifsGallery = document.getElementById('mygifs-gallery')
 
-  myGifsGallery.innerHTML=''
+  myGifsGallery.innerHTML = ''
   console.log(data.data)
   data.data.forEach(element => {
     const div = document.createElement('div')
@@ -301,62 +361,6 @@ async function renderMyGifsGallery() {
 
 
 
-
-
-async function startRecord() {
-
-
-
-  document.getElementById('button-capture').removeEventListener('click', startRecord)
-  document.getElementById('capture-icon').src = 'assests/img/recording.svg'
-  document.getElementById('capture-text').innerHTML = "Listo"
-  document.getElementById('capture-icon').classList.add('recording')
-  document.getElementById('capture-text').classList.add('recording')
-  document.getElementById('time-count').classList.replace('visibility-hidden', 'nav-item')
-  document.getElementById('box-tittle').textContent = "Capturando Tu Guifo"
-  document.getElementById('button-capture').addEventListener('click', stopRecord)
-  document.getElementById("timer-clock").innerHTML = "00:00:00:00"
-
-  await recorder.startRecording()
-  cronometrar()
-}
-
-
-let form = new FormData()
-
-let videoBlob
-
-async function stopRecord() {
-
-  await recorder.stopRecording(
-    async function () {
-      parar()
-      videoBlob = await recorder.getBlob();
-      form = new FormData()
-      form.append('file', videoBlob, 'myGif.gif');
-      console.log(form.get('file'))
-
-      document.getElementById('media-container').innerHTML = '<img class="gif-preview" src="" id="gif-preview"></img>'
-      let gifPreview = document.getElementById('gif-preview')
-      gifPreview.src = URL.createObjectURL(videoBlob);
-      document.getElementById('button-capture').removeEventListener('click', stopRecord)
-      document.getElementById('button-capture').addEventListener('click', upLoadingStatus)
-
-      await recorder.camera.stop();
-      await recorder.destroy();
-      recorder = null;
-      videoBlob = null
-    }
-  );
-}
-
-
-let intervalo
-let h = 0;
-let m = 0;
-let s = 0;
-let cs = 0;
-
 function cronometrar() {
   h = 0;
   m = 0;
@@ -368,37 +372,32 @@ function cronometrar() {
 }
 
 function parar() {
-  console.log('pasé por parar')
-  document.getElementById('box-tittle').textContent = "Vista previa"
-  clearInterval(intervalo)
-  createProgressBar(17)
-  showRecordedButtons()
+
 }
 
 function recapturar() {
 
-  claseBoton = document.getElementById('button-capture').classList.contains('hidden')
+  claseBoton = buttonCapture.classList.contains('hidden')
 
   if (claseBoton = true) {
-    document.getElementById('button-capture').classList.replace('hidden', 'upload-item')
+    buttonCapture.classList.replace('hidden', 'upload-item')
 
   }
-  document.getElementById('capture-text').innerHTML = "Capturar"
-  document.getElementById('capture-icon').classList.replace('hidden', 'primary-button')
+  buttonCaptureText.innerHTML = "Capturar"
+  buttonCaptureIcon.classList.replace('hidden', 'primary-button')
   document.getElementById('time-count').classList.replace('nav-item', 'visibility-hidden')
   document.getElementById("timer-clock").innerHTML = "00:00:00:00"
   document.getElementById('recapture-li').classList.replace('nav-item', 'hidden')
   document.getElementById('progressbar-li').classList.add('visibility-hidden')
-  document.getElementById('button-capture').removeEventListener('click', upLoadingStatus)
-  document.getElementById('button-capture').addEventListener('click', stopRecord)
-  document.getElementById('media-container').innerHTML = ' <video class="" src="" id="vista-camara"></video>'
-  let cameraLight ='assests/img/camera.svg'
-  let cameraDark ='assests/img/camera_light.svg'
-  
-  activeTheme == 'day-theme' ?  document.getElementById('capture-icon').src = cameraLight : document.getElementById('capture-icon').src = cameraDark
-  
+  buttonCapture.removeEventListener('click', upLoadingStatus)
+  mediaContainer.innerHTML = ' <video class="" src="" id="vista-camara"></video>'
+  let cameraLight = 'assests/img/camera.svg'
+  let cameraDark = 'assests/img/camera_light.svg'
 
-  getStreamAndRecord()
+  activeTheme == 'day-theme' ? buttonCaptureIcon.src = cameraLight : buttonCaptureIcon.src = cameraDark
+
+
+  startCamera()
 }
 
 function obtenerGifos2() {
@@ -423,10 +422,10 @@ function createProgressBar(parts) {
 
 function showRecordedButtons() {
   document.getElementById('progressbar-li').classList.remove('visibility-hidden')
-  document.getElementById('capture-icon').classList.remove('recording')
-  document.getElementById('capture-icon').classList.replace('primary-button', 'hidden')
-  document.getElementById('capture-text').classList.remove('recording')
-  document.getElementById('capture-text').innerHTML = "Subir Guifo"
+  buttonCaptureIcon.classList.remove('recording')
+  buttonCaptureIcon.classList.replace('primary-button', 'hidden')
+  buttonCaptureText.classList.remove('recording')
+  buttonCaptureText.innerHTML = "Subir Guifo"
   document.getElementById('recapture-li').classList.replace('hidden', 'nav-item')
 
 }
